@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <qstackedlayout.h>
 #include <qtabwidget.h>
+#include <qpushbutton.h>
 
 namespace Ui {
 class MainWindow;
@@ -27,6 +28,8 @@ private:
     
     QStackedLayout *m_stackLayout;
 	QTabWidget *m_tabWindow;    
+    QPushButton *m_exitBtn[3];
+    QPushButton *m_dlgBtn[3];
 };
 
 #endif // MAINWINDOW_H

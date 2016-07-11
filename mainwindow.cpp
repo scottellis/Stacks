@@ -1,8 +1,7 @@
 #include <qmessagebox.h>
-
+#include <qboxlayout.h>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -10,10 +9,12 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     
-    connect(ui->actionExit, SIGNAL(triggered()), SLOT(close()));
-	connect(ui->actionDialog, SIGNAL(triggered()), SLOT(onDialog()));
-
-	layoutWindow();
+    layoutWindow();
+    
+    for (int i = 0; i < 3; i++) {
+        connect(m_exitBtn[i], SIGNAL(clicked()), SLOT(close()));
+        connect(m_dlgBtn[i], SIGNAL(clicked()), SLOT(onDialog()));
+    }        
 }
 
 MainWindow::~MainWindow()
@@ -21,12 +22,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
 void MainWindow::onDialog()
 {
 	m_stackLayout->setCurrentIndex(1);
 
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN    
 	QMessageBox msgBox(QMessageBox::Information, 
 		"This is the title (optional)",
 		"This is the text", 
@@ -36,23 +36,43 @@ void MainWindow::onDialog()
 
 	msgBox.exec();
 #else
-	QMessageBox::information(this,
-		"This is the title(not shown)",
-		"This is the dialog text");
+    QMessageBox::information(this, "", "This is the text");
 #endif
-
+    
 	m_stackLayout->setCurrentIndex(0);
 }
 
 void MainWindow::layoutWindow()
 {
+    QHBoxLayout *hLayout;
+    
 	m_stackLayout = new QStackedLayout;
-
+  
 	m_tabWindow = new QTabWidget;
-	m_tabWindow->addTab(new QWidget, "Tab 1");
-	m_tabWindow->addTab(new QWidget, "Tab 2");
-	m_tabWindow->addTab(new QWidget, "Tab 3");
-
+    
+    for (int i = 0; i < 3; i++) {
+        m_exitBtn[i] = new QPushButton("Exit");
+        m_dlgBtn[i] = new QPushButton("Dialog");
+        QVBoxLayout *vLayout = new QVBoxLayout;
+        vLayout->addStretch();
+        hLayout = new QHBoxLayout;
+        hLayout->addStretch();
+        hLayout->addWidget(m_dlgBtn[i]);
+        hLayout->addStretch();
+        vLayout->addLayout(hLayout);
+        vLayout->addStretch();
+        hLayout = new QHBoxLayout;
+        hLayout->addStretch();
+        hLayout->addWidget(m_exitBtn[i]);
+        hLayout->addStretch();
+        vLayout->addLayout(hLayout);
+        vLayout->addStretch();
+        
+        QWidget *w = new QWidget;
+        w->setLayout(vLayout);
+        m_tabWindow->addTab(w, "Tab " + QString::number(i + 1));        
+    }
+      
 	m_stackLayout->addWidget(m_tabWindow);
 	m_stackLayout->addWidget(new QWidget);
 	m_stackLayout->setCurrentIndex(0);
